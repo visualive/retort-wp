@@ -1,0 +1,221 @@
+#!/usr/bin/env bash
+
+# set -ex;
+
+PROGNAME="Retort WP"
+VERSION="1.0.0"
+DIR=$(cd $(dirname $0); pwd)
+PORT=8080
+WPPATH=${DIR}/htdocs
+WPCLI=${DIR}/bin/wp
+
+function usage() {
+    echo "Usage: $PROGNAME [OPTIONS] FILE"
+    echo "  This script is ~."
+    echo
+    echo "Options:"
+    echo "  -h, Help"
+    echo "  -v, Version"
+    echo
+    exit 1
+}
+
+function serverStart() {
+    open http://127.0.0.1:${PORT}
+
+    echo ""
+    echo "WordPress User: rwp"
+    echo "WordPress Password: rwp"
+    echo ""
+
+    ${WPCLI} server --host=0.0.0.0 --port=${PORT} --docroot=${WPPATH}
+
+    exit 0
+}
+
+function mysqlStart() {
+    if [ ! -x "`which mysql`" ]; then
+        brew install mysql
+    fi
+
+    if [ -x "`which mysql`" ]; then
+        local POWER=$(mysql.server status | grep SUCCESS!)
+
+        if [ ! -n "${POWER-}" ]; then
+            mysql.server start
+        fi
+    fi
+}
+
+function mysqlStop() {
+    local POWER=$(mysql.server status | grep SUCCESS!)
+
+    if [ -n "${POWER-}" ]; then
+        mysql.server stop
+    fi
+}
+
+function createDB() {
+    local dbUSER=$1
+    local dbPASS=$2
+    local dbNAME=$3
+
+    if [ ${dbPASS} ]; then
+        echo "DROP DATABASE IF EXISTS ${dbNAME};" | mysql -u${dbUSER} -p${dbPASS}
+        echo "CREATE DATABASE ${dbNAME} DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;" | mysql -u${dbUSER} -p${dbPASS}
+    else
+        echo "DROP DATABASE IF EXISTS ${dbNAME};" | mysql -u${dbUSER}
+        echo "CREATE DATABASE ${dbNAME} DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;" | mysql -u${dbUSER}
+    fi
+}
+
+function installWPCLI() {
+    if [ ! -e "${WPCLI}" ]; then
+        curl -LOk https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli-nightly.phar
+
+        if [ ! -e "${DIR}/bin" ]; then
+            mkdir ${DIR}/bin
+        fi
+
+        mv wp-cli-nightly.phar ${WPCLI}
+        chmod +x ${WPCLI}
+
+        if [ ! -e "${DIR}/wp-cli.yml" ]; then
+            echo "path: ${WPPATH}" > ${DIR}/wp-cli.yml
+        fi
+    fi
+}
+
+function createWPconfig() {
+    local dbUSER=$1
+    local dbPASS=$2
+    local dbNAME=$3
+
+if [ ${dbPASS} ]; then
+${WPCLI} core config \
+--dbhost=localhost \
+--dbuser="${dbUSER}" \
+--dbpass="${dbPASS}" \
+--dbname="${dbNAME}" \
+--dbprefix=wp_ \
+--locale=en_US \
+--extra-php <<PHP
+define( 'WP_DEBUG', true );
+define( 'WP_DEBUG_DISPLAY', WP_DEBUG );
+define( 'WP_DEBUG_LOG', WP_DEBUG );
+define( 'JETPACK_DEV_DEBUG', WP_DEBUG );
+PHP
+else
+${WPCLI} core config \
+--dbhost=localhost \
+--dbuser="${dbUSER}" \
+--dbname="${dbNAME}" \
+--dbprefix=wp_ \
+--locale=en_US \
+--extra-php <<PHP
+define( 'WP_DEBUG', true );
+define( 'WP_DEBUG_DISPLAY', WP_DEBUG );
+define( 'WP_DEBUG_LOG', WP_DEBUG );
+define( 'JETPACK_DEV_DEBUG', WP_DEBUG );
+PHP
+fi
+}
+
+function installWP() {
+    local wpNAME=$1
+    local wpDESC=$2
+
+    ${WPCLI} core install \
+    --url=http://127.0.0.1:${PORT} \
+    --title="WordPress" \
+    --admin_user="rwp" \
+    --admin_password="rwp" \
+    --admin_email="rwp@example.com"
+
+    ${WPCLI} rewrite structure "/archives/%post_id%"
+
+    ${WPCLI} option update blogname "${wpNAME}"
+    ${WPCLI} option update blogdescription "${wpDESC}"
+    ${WPCLI} core language install ja && ${WPCLI} core language activate ja
+}
+
+function run() {
+    local dbUSER
+    local dbPASS
+    local dbNAME
+    local wpNAME
+    local wpDESC
+
+    mysqlStart
+
+    if [ -e "${WPPATH}/wp-config.php" ]; then
+        serverStart
+    else
+        installWPCLI
+
+        echo -n 'Please enter the user name of the database > '
+        read dbUSER
+        echo -n 'Please enter the password of the database > '
+        read dbPASS
+        echo -n 'Please enter the name of the database > '
+        read dbNAME
+        echo -n 'Please enter the WordPress site description > '
+        read wpNAME
+        echo -n 'Please enter the WordPress site description > '
+        read wpDESC
+
+        if [ ! -n "${dbUSER}" ]; then
+            dbUSER=root
+        fi
+
+        if [ ! -n "${dbNAME}" ]; then
+            dbNAME=wpdev
+        fi
+
+        if [ ! -n "${wpNAME}" ]; then
+            wpNAME="WordPress"
+        fi
+
+        if [ ! -n "${wpDESC}" ]; then
+            wpDESC="This site has been set up with the Retort WP."
+        fi
+
+        createDB ${dbUSER} "${dbPASS}" ${dbNAME}
+        ${WPCLI} core download --path=${WPPATH} --locale=en_US --force
+        createWPconfig ${dbUSER} "${dbPASS}" ${dbNAME}
+        installWP "${wpNAME}" "${wpDESC}"
+        serverStart
+    fi
+}
+
+for OPT in $*
+do
+    case ${OPT} in
+        '-h' )
+            usage
+            exit 0
+            ;;
+        '-v' )
+            echo ${VERSION}
+            exit 0
+            ;;
+        'start' )
+            run
+            exit 0
+            ;;
+        'stop' )
+            mysqlStop
+            exit 0
+            ;;
+        'test' )
+            exit 0
+            ;;
+        *)
+            echo "Internal error!" 1>&2
+            exit 1
+            ;;
+    esac
+    shift
+done
+
+exit 0
