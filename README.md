@@ -5,6 +5,10 @@ WordPress development environment with PHP built-in server + WP-CLI.
 
 This is used [wp-instant-setup by miya0001](https://github.com/miya0001/wp-instant-setup) as reference.
 
+## Demo Movie
+
+https://www.youtube.com/watch?v=6vL-2rJXGtQ
+
 ## Requires
 * macOS (OSX)
 * PHP 5.4+
