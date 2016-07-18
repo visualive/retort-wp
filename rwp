@@ -34,8 +34,11 @@ function serverStart() {
 }
 
 function mysqlStart() {
-    if [ ! -x "`which mysql`" ]; then
+    if [ ! -x "`which mysql`" ] && [ -x "`which brew`" ]; then
         brew install mysql
+    else
+        echo "Please install to the MySQL or Homebrew."
+        exit 1
     fi
 
     if [ -x "`which mysql`" ]; then
