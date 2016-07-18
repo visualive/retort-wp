@@ -1,7 +1,8 @@
 Retort WP
 ========
 
-WordPress development environment with PHP built-in server + WP-CLI.
+WordPress development environment based on PHP built-in server + WP-CLI.  
+A simple and fast to build a WordPress development environment.
 
 This is used [wp-instant-setup by miya0001](https://github.com/miya0001/wp-instant-setup) as reference.
 
