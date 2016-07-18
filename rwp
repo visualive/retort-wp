@@ -16,6 +16,8 @@ function usage() {
     echo "Options:"
     echo "  -h, Help"
     echo "  -v, Version"
+    echo "  start, Starting web server"
+    echo "  stop, Shutting down MySQL"
     echo
     exit 1
 }
