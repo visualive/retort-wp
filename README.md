@@ -20,7 +20,7 @@ https://www.youtube.com/watch?v=6vL-2rJXGtQ
 ```bash
 $ mkdir ./retort-wp &&\
 cd ./retort-wp &&\
-curl -LOk https://goo.gl/l6xaZw &&\
+curl -LOk https://raw.githubusercontent.com/visualive/retort-wp/master/rwp &&\
 chmod u+x ./rwp &&\
 ./rwp start
 ```
