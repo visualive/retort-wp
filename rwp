@@ -158,7 +158,6 @@ function installWP() {
 
     ${WPCLI} option update blogname "${wpNAME}"
     ${WPCLI} option update blogdescription "${wpDESC}"
-    ${WPCLI} core language install ja
 }
 
 function run() {
