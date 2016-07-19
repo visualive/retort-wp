@@ -38,20 +38,23 @@ function serverStart() {
 function mysqlInstall() {
     if [ -x "`which brew`" ]; then
         brew install mysql
-
-        if [ ! -e "/var/mysql/mysql.sock" ]; then
-            echo "Create a symbolic link of /tmp/mysql.sock to /var/mysql/mysql.sock"
-            echo ""
-
-            if [ ! -e "/var/mysql" ]; then
-                sudo mkdir /var/mysql
-            fi
-
-            sudo ln -s /tmp/mysql.sock /var/mysql/mysql.sock
-        fi
+        mysqlAddSocket
     else
         echo "Please install to the MySQL or Homebrew."
         exit 0
+    fi
+}
+
+function mysqlAddSocket() {
+    if [ ! -e "/var/mysql/mysql.sock" ]; then
+        echo "Create a symbolic link of /tmp/mysql.sock to /var/mysql/mysql.sock"
+        echo ""
+
+        if [ ! -e "/var/mysql" ]; then
+            sudo mkdir /var/mysql
+        fi
+
+        sudo ln -s /tmp/mysql.sock /var/mysql/mysql.sock
     fi
 }
 
