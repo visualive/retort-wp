@@ -183,7 +183,7 @@ function run() {
         read dbPASS
         echo -n 'Please enter the name of the database > '
         read dbNAME
-        echo -n 'Please enter the WordPress site description > '
+        echo -n 'Please enter the WordPress site name > '
         read wpNAME
         echo -n 'Please enter the WordPress site description > '
         read wpDESC
