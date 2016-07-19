@@ -30,7 +30,8 @@ Or
 ```bash
 # Anyway, let's trial.
 $ cd ~/Desktop &&\
-curl -L https://goo.gl/9ZJeCm | sh
+curl -L https://goo.gl/Nh9Q3x | sh &&\
+./rwp start
 ```
 
 ### Options
