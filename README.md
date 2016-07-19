@@ -18,19 +18,10 @@ https://www.youtube.com/watch?v=6vL-2rJXGtQ
 ## How To Use
 
 ```bash
-$ mkdir ./retort-wp
-$ cd ./retort-wp
-$ curl -LOk https://raw.githubusercontent.com/visualive/retort-wp/master/rwp
-$ chmod u+x ./rwp
-$ ./rwp start
-```
-
-Or
-
-```bash
-# Anyway, let's trial.
-$ cd ~/Desktop &&\
-curl -L https://goo.gl/Nh9Q3x | sh &&\
+$ mkdir ./retort-wp &&\
+cd ./retort-wp &&\
+curl -LOk https://goo.gl/l6xaZw &&\
+chmod u+x ./rwp &&\
 ./rwp start
 ```
 
