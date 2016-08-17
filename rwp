@@ -115,6 +115,7 @@ function createWPconfig() {
     local dbUSER=$1
     local dbPASS=$2
     local dbNAME=$3
+    local dbPREFIX=$4
 
 if [ ${dbPASS} ]; then
 ${WPCLI} core config \
@@ -122,7 +123,7 @@ ${WPCLI} core config \
 --dbuser="${dbUSER}" \
 --dbpass="${dbPASS}" \
 --dbname="${dbNAME}" \
---dbprefix=wp_ \
+--dbprefix="${dbPREFIX}" \
 --locale=en_US \
 --extra-php <<PHP
 define( 'WP_DEBUG', true );
@@ -135,7 +136,7 @@ ${WPCLI} core config \
 --dbhost=localhost \
 --dbuser="${dbUSER}" \
 --dbname="${dbNAME}" \
---dbprefix=wp_ \
+--dbprefix="${dbPREFIX}" \
 --locale=en_US \
 --extra-php <<PHP
 define( 'WP_DEBUG', true );
@@ -167,6 +168,7 @@ function run() {
     local dbUSER
     local dbPASS
     local dbNAME
+    local dbPREFIX
     local wpNAME
     local wpDESC
 
@@ -179,12 +181,19 @@ function run() {
 
         echo -n 'Please enter the user name of the database > '
         read dbUSER
+
         echo -n 'Please enter the password of the database > '
         read dbPASS
+
         echo -n 'Please enter the name of the database > '
         read dbNAME
+
+        echo -n 'Please enter the prefix of the database table name > '
+        read dbPREFIX
+
         echo -n 'Please enter the WordPress site name > '
         read wpNAME
+
         echo -n 'Please enter the WordPress site description > '
         read wpDESC
 
@@ -194,6 +203,10 @@ function run() {
 
         if [ ! -n "${dbNAME}" ]; then
             dbNAME=wpdev
+        fi
+
+        if [ ! -n "${dbPREFIX}" ]; then
+            dbPREFIX=wp_
         fi
 
         if [ ! -n "${wpNAME}" ]; then
@@ -206,7 +219,7 @@ function run() {
 
         createDB ${dbUSER} "${dbPASS}" ${dbNAME}
         ${WPCLI} core download --path=${WPPATH} --locale=en_US --force
-        createWPconfig ${dbUSER} "${dbPASS}" ${dbNAME}
+        createWPconfig ${dbUSER} "${dbPASS}" ${dbNAME} ${dbPREFIX}
         installWP "${wpNAME}" "${wpDESC}"
         serverStart
     fi
