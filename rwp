@@ -3,7 +3,7 @@
 # set -ex;
 
 PROGNAME="Retort WP"
-VERSION="1.0.1"
+VERSION="1.0.2"
 DIR=$(cd $(dirname $0); pwd)
 PORT=8080
 WPPATH=${DIR}/htdocs
@@ -16,7 +16,7 @@ function usage() {
     echo "Options:"
     echo "  -h     Help"
     echo "  -v     Version"
-    echo "  start  Starting web server"
+    echo "  start  Starting server"
     echo "  stop   Shutting down MySQL"
     echo
     exit 1
